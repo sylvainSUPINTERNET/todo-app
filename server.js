@@ -40,16 +40,50 @@ server.get('/', function(req, res) {
 });
 
 
-server.get('/loginTry/:username', function (req, res) {
-    var username = req.params.username
-    console.log(username);
-    res.send(username);
+
+
+server.get('/login', function(req, res) {
+    res.sendFile('testlogin.html', {"root" : __dirname});
 });
 
 
-server.post('/loginTry', function (req, res, next) {
+
+
+
+
+server.post('/login', function (req, res, next) {
     var username = req.body.username;
     console.log(`try connection for username ${username} `);
+
+    connection.connect(function (err) {
+        if (err) throw err;
+        console.log("Connected ... ");
+        var sql = "SELECT * FROM user WHERE user.username = '" + username + "'";
+        connection.query(sql, function (err, result) {
+            if (err) throw err;
+            console.log("1 record inserted");
+            console.log(result.length);
+
+            if(result.length === 0){
+                //Existe pas en DB
+                var sql = "INSERT INTO user (username) VALUES ('" + username + "')";
+                connection.query(sql, function (err, result) {
+                    if (err) throw err;
+                    console.log("1 record inserted");
+                    console.log(result);
+
+                });
+
+            }else{
+                //Existe en DB
+                console.log("User already in DB !!")
+
+            }
+
+        });
+    });
+
+
     next();
 
 });
@@ -61,18 +95,20 @@ server.post('/create/task', function (req, res, next) {
     var content_ = req.body.content;
     var date_ = req.body.date;
     var task_status_ = req.body.task_status;
+    var username_ = req.body.username;
 
 
     connection.connect(function (err) {
         if (err) throw err;
         console.log("Connected ... ");
-        var sql = "INSERT INTO tasks (title, content, date, task_status) VALUES ('" + title_ + "', '" + content_ + "' , '" + date_ + "' ,'" + task_status_ + "')";
+        var sql = "INSERT INTO tasks (title, content, date, task_status, username) VALUES ('" + title_ + "', '" + content_ + "' , '" + date_ + "' ,'" + task_status_ + "', '" + username_ + "')";
         connection.query(sql, function (err, result) {
             if (err) throw err;
             console.log("1 record inserted");
             console.log(result);
         });
     });
+
 
     next();
 });
