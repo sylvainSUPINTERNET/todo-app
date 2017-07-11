@@ -16,76 +16,72 @@ const mysql = require('mysql');
 var connection = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
-    password: 'root',
+    password: '',
     database: 'todo',
-    port: '8889'
+    //port: '8000'
 });
 
 server.use(express.static(path.join(__dirname, 'public')));
 
 
-
 /*
-connection.query('SELECT * FROM user', function (error, results, fields) {
-    if (error) throw error;
-    console.log('The solution is: ', results[0].solution);
-});
-*/
+ connection.query('SELECT * FROM user', function (error, results, fields) {
+ if (error) throw error;
+ console.log('The solution is: ', results[0].solution);
+ });
+ */
 
 
-
-
-server.get('/', function(req, res) {
-    res.sendFile('testpost.html', {"root" : __dirname});
+server.get('/', function (req, res) {
+    res.sendFile('testpost.html', {"root": __dirname});
 });
 
 
-
-
-server.get('/login', function(req, res) {
-    res.sendFile('testlogin.html', {"root" : __dirname});
+server.get('/login', function (req, res) {
+    res.sendFile('testlogin.html', {"root": __dirname});
 });
-
-
-
-
 
 
 server.post('/login', function (req, res, next) {
     var username = req.body.username;
     console.log(`try connection for username ${username} `);
 
-    connection.connect(function (err) {
-        if (err) throw err;
-        console.log("Connected ... ");
-        var sql = "SELECT * FROM user WHERE user.username = '" + username + "'";
-        connection.query(sql, function (err, result) {
+    if (username.length == 0) {
+        console.log("error login vide");
+        res.json(({ error: 'login empty' }));
+    } else {
+        connection.connect(function (err) {
             if (err) throw err;
-            console.log("1 record inserted");
-            console.log(result.length);
+            console.log("Connected ... ");
+            var sql = "SELECT * FROM user WHERE user.username = '" + username + "'";
+            connection.query(sql, function (err, result) {
+                if (err) throw err;
+                console.log("1 record inserted");
+                console.log(result.length);
 
-            if(result.length === 0){
-                //Existe pas en DB
-                var sql = "INSERT INTO user (username) VALUES ('" + username + "')";
-                connection.query(sql, function (err, result) {
-                    if (err) throw err;
-                    console.log("1 record inserted");
-                    console.log(result);
+                if (result.length === 0) {
+                    //Existe pas en DB
+                    var sql = "INSERT INTO user (username) VALUES ('" + username + "')";
+                    connection.query(sql, function (err, result) {
+                        if (err) throw err;
+                        console.log("1 record inserted");
+                        console.log(result);
+                        res.json(result);
+                    });
 
-                });
+                } else {
+                    //Existe en DB
+                    console.log("User already in DB !!")
 
-            }else{
-                //Existe en DB
-                console.log("User already in DB !!")
+                }
 
-            }
+            });
 
         });
-    });
 
 
-    next();
-
+        next();
+    }
 });
 
 
@@ -108,6 +104,14 @@ server.post('/create/task', function (req, res, next) {
             console.log(result);
         });
     });
+
+
+    next();
+});
+
+
+server.post('/tasks/:username', function (req, res, next) {
+    var firstname = req.body.firstname;
 
 
     next();
