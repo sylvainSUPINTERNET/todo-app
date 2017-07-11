@@ -46,7 +46,7 @@ server.post('/login', function (req, res, next) {
     var username = req.body.username;
     console.log(`try connection for username ${username} `);
 
-    if (username.length == 0) {
+    if (username == "") {
         console.log("error login vide");
         res.json(({error: 'login empty'}));
     } else {
@@ -64,23 +64,19 @@ server.post('/login', function (req, res, next) {
                     var sql = "INSERT INTO user (username) VALUES ('" + username + "')";
                     connection.query(sql, function (err, result) {
                         if (err) throw err;
-                        console.log("1 record inserted");
-                        console.log(result);
-                        res.json(result);
+                        console.log("1 record inserted")
+                        res.json(result.rows);
                     });
 
                 } else {
                     //Existe en DB
                     console.log("User already in DB !!");
-                    res.json(result);
+                    res.json(result.rows);
                 }
 
             });
 
         });
-
-
-        next();
     }
 });
 
@@ -102,6 +98,8 @@ server.post('/create/task', function (req, res, next) {
             if (err) throw err;
             console.log("1 record inserted");
             console.log(result);
+
+
         });
     });
 
