@@ -48,7 +48,7 @@ server.post('/login', function (req, res, next) {
 
     if (username.length == 0) {
         console.log("error login vide");
-        res.json(({ error: 'login empty' }));
+        res.json(({error: 'login empty'}));
     } else {
         connection.connect(function (err) {
             if (err) throw err;
@@ -71,8 +71,8 @@ server.post('/login', function (req, res, next) {
 
                 } else {
                     //Existe en DB
-                    console.log("User already in DB !!")
-
+                    console.log("User already in DB !!");
+                    res.json(result);
                 }
 
             });
